@@ -18,7 +18,7 @@ public class Main {
         while (true) {
             Thread.sleep(1000);
 
-            // Gerando número aleatório entre 15 e 45
+            
             Random rand = new Random();
             int n = rand.nextInt(30);
             n+=15;

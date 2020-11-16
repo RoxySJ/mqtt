@@ -18,23 +18,23 @@ import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 public class ClienteMQTT implements MqttCallbackExtended {
 
-    private final String serverURI;
+    private final String server;
     private MqttClient client;
-    private final MqttConnectOptions mqttOptions;
+    private final MqttConnectOptions mqttOp;
 
-    public ClienteMQTT(String serverURI, String user, String password) {
-        this.serverURI = serverURI;
+    public ClienteMQTT(String server, String user, String password) {
+        this.server = server;
 
-        mqttOptions = new MqttConnectOptions();
-        mqttOptions.setMaxInflight(200);
-        mqttOptions.setConnectionTimeout(3);
-        mqttOptions.setKeepAliveInterval(10);
-        mqttOptions.setAutomaticReconnect(true);
-        mqttOptions.setCleanSession(false);
+        mqttOp = new MqttConnectOptions();
+        mqttOp.setMaxInflight(200);
+        mqttOp.setConnectionTimeout(3);
+        mqttOp.setKeepAliveInterval(10);
+        mqttOp.setAutomaticReconnect(true);
+        mqttOp.setCleanSession(false);
 
         if (user != null && password != null) {
-            mqttOptions.setUserName(user);
-            mqttOptions.setPassword(password.toCharArray());
+            mqttOp.setUserName(user);
+            mqttOp.setPassword(password.toCharArray());
         }
     }
 
@@ -53,7 +53,7 @@ public class ClienteMQTT implements MqttCallbackExtended {
         try {
             return client.subscribeWithResponse(topics, qoss, listners);
         } catch (MqttException ex) {
-            System.out.println(String.format("Não foi possível se inscrever nos tópicos %s - %s", Arrays.asList(topics), ex));
+            System.out.println(String.format("Erro na inscrição nos tópicos %s - %s", Arrays.asList(topics), ex));
             return null;
         }
     }
@@ -65,18 +65,18 @@ public class ClienteMQTT implements MqttCallbackExtended {
         try {
             client.unsubscribe(topics);
         } catch (MqttException ex) {
-            System.out.println(String.format("Não foi possível se desinscrever do tópico %s - %s", Arrays.asList(topics), ex));
+            System.out.println(String.format("Erro na  desinscrição dos tópicos %s - %s", Arrays.asList(topics), ex));
         }
     }
 
     public void iniciar() {
         try {
-            System.out.println("Conectando-se ao broker MQTT em " + serverURI);
-            client = new MqttClient(serverURI, String.format("cliente_java_%d", System.currentTimeMillis()), new MqttDefaultFilePersistence(System.getProperty("java.io.tmpdir")));
+            System.out.println("Conectando-se ao broker MQTT em " + server);
+            client = new MqttClient(server, String.format("cliente_java_%d", System.currentTimeMillis()), new MqttDefaultFilePersistence(System.getProperty("java.io.tmpdir")));
             client.setCallback(this);
-            client.connect(mqttOptions);
+            client.connect(mqttOp);
         } catch (MqttException ex) {
-            System.out.println("Não foi possível se conectar ao broker MQTT " + serverURI + " - " + ex);
+            System.out.println("Erro ao se conectar ao broker MQTT " + server + " - " + ex);
         }
     }
 
@@ -88,7 +88,7 @@ public class ClienteMQTT implements MqttCallbackExtended {
             client.disconnect();
             client.close();
         } catch (MqttException ex) {
-            System.out.println("Não foi possível se desconectar do broker MQTT - " + ex);
+            System.out.println("Erro na desconexão do broker MQTT - " + ex);
         }
     }
 
@@ -102,21 +102,21 @@ public class ClienteMQTT implements MqttCallbackExtended {
                 client.publish(topic, payload, qos, retained);
                 System.out.println(String.format("Mensagem no tópico %s     . ", topic));
             } else {
-                System.out.println("Cliente desconectado, não foi possível publicar o tópico " + topic);
+                System.out.println("Cliente desconectado/ Erro ao publicar o tópico " + topic);
             }
         } catch (MqttException ex) {
-            System.out.println("Não foi possível publicar " + topic + " - " + ex);
+            System.out.println("Erro ao publicar " + topic + " - " + ex);
         }
     }
 
     @Override
     public void connectionLost(Throwable thrwbl) {
-        System.out.println("A conexão com o broker foi perdida -" + thrwbl);
+        System.out.println("Conexão ao broker  perdida -" + thrwbl);
     }
 
     @Override
-    public void connectComplete(boolean reconnect, String serverURI) {
-        System.out.println("Cliente MQTT " + (reconnect ? "reconectado" : "conectado") + " com o broker " + serverURI);
+    public void connectComplete(boolean reconnect, String server) {
+        System.out.println("Cliente MQTT " + (reconnect ? "reconectado" : "conectado") + " com o broker " + server);
     }
 
     @Override

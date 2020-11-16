@@ -15,10 +15,10 @@ public class Subscriber implements IMqttMessageListener {
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage mm) throws Exception {
-        System.out.println("Uma mensagem foi recebida:");
+    public void messageArrived(String topic, MqttMessage m) throws Exception {
+        System.out.println("Mensagem  recebida:");
         System.out.println("\tTópico: " + topic);
-        System.out.println("\tMensagem: " + new String(mm.getPayload()));
+        System.out.println("\tMensagem: " + new String(m.getPayload()));
         System.out.println("");
     }
 
