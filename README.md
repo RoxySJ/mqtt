@@ -1,3 +1,3 @@
 # MQTT
 
-questão sd mqtt
+questão sd mqtt"# thrift" 
